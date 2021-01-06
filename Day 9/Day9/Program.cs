@@ -6,6 +6,8 @@ namespace Day9
 {
     class Program
     {
+        private static int RangeSize = 25;
+
         static void Main(string[] args)
         {
             //file in disk
@@ -20,8 +22,7 @@ namespace Day9
                 numbers.Add(long.Parse(line));
             }
 
-            long forStep2 = Step1(numbers);
-            Step2(numbers, forStep2);
+            Step2(numbers, Step1(numbers));
         }
 
         static long Step1(List<long> numbers)
@@ -30,33 +31,41 @@ namespace Day9
             int index = -1;
             bool sumFound = false;
 
-            for (int i = 25; i < numbers.Count; i++)
+            for (int i = RangeSize; i < numbers.Count; i++)
             {
-                for (int j = i - 25; j < i; j++)
+                for (int j = i - RangeSize; j < i; j++)
                 {
-                    for (int k = i - 25; k < i; k++)
+                    for (int k = i - RangeSize; k < i; k++)
                     {
                         if ((numbers[i] == numbers[j] + numbers[k]) && 
                             (j != k)
                            )
                         {
+                            // numbers[i] is the sum of two of the previous {RangeSize} values
+                            // and the sum of different values - can exit the loop
                             sumFound = true;
                             break;
                         }
                     }
 
                     if (sumFound == true)
+                    {
+                        // since a sum was found, exit the loop
                         break;
+                    }
                 }
 
                 if (sumFound == false)
                 {
                     answer = numbers[i];
                     index = i;
+
+                    // no sum as found for numbers[i] from the previous {RangeSize} values - no need to continue checking
                     break;
                 }
                 else
                 {
+                    // reset the sumFound flag so the next numbers[] can be checked
                     sumFound = false;
                 }
             }
@@ -68,29 +77,29 @@ namespace Day9
 
         static void Step2(List<long> numbers, long fromStep1)
         {
-            long smallest = -1; 
-            long largest = -1;
+            long smallestNumber = -1; 
+            long largestNumber = -1;
+
             for (int i = 0; i < numbers.Count; i++)
             {
                 long runningSum = 0;
                 int index = i;
-                smallest = numbers[i];
-                largest = numbers[i];
+                
+                smallestNumber = numbers[i];
+                largestNumber = numbers[i];
+
                 while (runningSum < fromStep1)
                 {
                     runningSum += numbers[index];
-                    if (numbers[index] > largest)
+                    
+                    if (numbers[index] > largestNumber)
                     {
-                        largest = numbers[index];
+                        largestNumber = numbers[index];
                     }
-                    if (numbers[index] < smallest)
+                    
+                    if (numbers[index] < smallestNumber)
                     {
-                        smallest = numbers[index];
-                    }
-
-                    if (runningSum == fromStep1)
-                    {
-                        break;
+                        smallestNumber = numbers[index];
                     }
 
                     index++;
@@ -98,16 +107,18 @@ namespace Day9
 
                 if (runningSum == fromStep1)
                 {
+                    // the sequence of numbers that sum to the {fromStep1} value has been found - no need to continue checking
                     break;
                 }
                 else
                 {
-                    smallest = -1;
-                    largest = -1;
+                    // reset the smallest and largest values to check the next numbers[] value
+                    smallestNumber = -1;
+                    largestNumber = -1;
                 }
             }
 
-            Console.WriteLine("Step 2 - {0} + {1} = {2}", smallest, largest, smallest + largest);
+            Console.WriteLine("Step 2 - {0} + {1} = {2}", smallestNumber, largestNumber, smallestNumber + largestNumber);
         }
     }
 }
